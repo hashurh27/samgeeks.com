@@ -23,7 +23,7 @@ var (
 func InsertUser(db *sql.DB, username, email, password string) error {
 	// Check if username already exists
 	var count int
-	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", username).Scan(&count)
+	err := db.QueryRow("SELECT COUNT(*) FROM user WHERE username = ?", username).Scan(&count)
 	if err != nil {
 		return fmt.Errorf("error checking duplicate username: %w", err)
 	}
@@ -32,7 +32,7 @@ func InsertUser(db *sql.DB, username, email, password string) error {
 	}
 
 	// Check if email already exists
-	err = db.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", email).Scan(&count)
+	err = db.QueryRow("SELECT COUNT(*) FROM user WHERE email = ?", email).Scan(&count)
 	if err != nil {
 		return fmt.Errorf("error checking duplicate email: %w", err)
 	}
@@ -41,7 +41,7 @@ func InsertUser(db *sql.DB, username, email, password string) error {
 	}
 
 	// Insert the user into the database
-	stmt, err := db.Prepare(`INSERT INTO users (username, email, password) VALUES (?, ?, ?)`)
+	stmt, err := db.Prepare(`INSERT INTO user (username, email, passwordHash) VALUES (?, ?, ?)`)
 	if err != nil {
 		return fmt.Errorf("error preparing statement: %w", err)
 	}
@@ -57,7 +57,7 @@ func InsertUser(db *sql.DB, username, email, password string) error {
 
 // ScanUser retrieves a user from the database by ID.
 func ScanUser(db *sql.DB, id int) ([]User, error) {
-	query := fmt.Sprintf("SELECT username,password,email FROM users WHERE id=%d", id)
+	query := fmt.Sprintf("SELECT username,passwordHash,email FROM user WHERE id=%d", id)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, fmt.Errorf("error executing query: %w", err)
